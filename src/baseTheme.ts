@@ -3,14 +3,19 @@ import { createTheme } from "@mui/material/styles";
 const theme = createTheme({
   palette: {
     primary: {
-      main: "#2196f3",     // Used for task block border-left
-      light: "#e3f2fd",    // Used for task block background
+      main: "#2196f3",
+      light: "#e3f2fd",
     },
     text: {
       primary: "#000",
-      secondary: "#999",   // Used for time label text
+      secondary: "#999",
     },
-    divider: "#eee",        // Used for time grid line
+    error: {
+      main: "#d32f2f",
+      light: "#fdecea",
+      dark: "#b71c1c",
+    },
+    divider: "#eee",
   },
 });
 

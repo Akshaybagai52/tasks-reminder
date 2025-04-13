@@ -6,26 +6,44 @@ import {
   DialogActions,
   TextField,
   Button,
-  Typography,
+  Stack,
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
-import { Task } from "../../types/Task";
+import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import {
-  addTask,
-  editTask,
-  resetIsConflictTime,
-} from "../../features/application/TaskSlice";
+import { Task } from "../../types/Task";
+import { addTask, editTask } from "../../features/application/TaskSlice";
 import dayjs from "dayjs";
 import { manageTaskSelector } from "../../selectors/TaskSelector";
 import { isConflictTask } from "../../helper/HelperFunctions";
+import {
+  StyledConflictError,
+  StyledErrorIconWrapper,
+} from "../../styles/TaskFormDialogStyles";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   initialTask?: Task | null;
 }
+
+/**
+ * TaskFormDialog is a React functional component that provides a dialog
+ * interface for adding or editing a task. It allows users to input task
+ * details such as title, description, start time, and end time. It handles
+ * task conflict detection and provides visual feedback if a conflict is
+ * detected. The component supports both adding new tasks and editing existing
+ * ones based on the presence of an initial task. It leverages Redux for
+ * state management and dispatches actions to add or edit tasks in the
+ * application state.
+ *
+ * Props:
+ * - open: A boolean indicating whether the dialog is open.
+ * - onClose: A callback function to handle dialog closure.
+ * - initialTask: An optional Task object to pre-populate the form for
+ *   editing an existing task.
+ */
 
 const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
   const dispatch = useDispatch();
@@ -54,6 +72,13 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
     }
   }, [initialTask]);
 
+/**
+ * Handles the save operation for the task form.
+ * Checks for task conflicts using existing tasks and the provided task details.
+ * If a conflict is detected, sets the conflict state and aborts the save operation.
+ * Otherwise, dispatches an action to either add a new task or edit an existing task,
+ * and then closes the dialog.
+ */
   const handleSave = () => {
     const newTask = {
       ...task,
@@ -70,11 +95,28 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
       return;
     }
     isEdit ? dispatch(editTask(newTask)) : dispatch(addTask(newTask));
+    onDialogClose();
+  };
+
+  /**
+   * Called when the dialog is closed.
+   * Resets the state of the TaskFormDialog to its initial state.
+   * Closes the dialog.
+   */
+  const onDialogClose = () => {
     onClose();
+    setTask({
+      id: "",
+      title: "",
+      description: "",
+      startTime: new Date(),
+      endTime: new Date(),
+    });
+    setisConflict(false);
   };
 
   return (
-    <Dialog open={open} onClose={onClose}>
+    <Dialog open={open} onClose={onDialogClose}>
       <DialogTitle>{isEdit ? "Edit" : "Add"} Task</DialogTitle>
       <DialogContent>
         <TextField
@@ -91,33 +133,37 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
           value={task.description}
           onChange={(e) => setTask({ ...task, description: e.target.value })}
         />
+
         {isConflict && (
-          <Typography style={{ color: "red" }}>Conflict Task</Typography>
+          <StyledConflictError>
+            <StyledErrorIconWrapper>
+              <ErrorOutlineIcon sx={{ fontSize: 16 }} />
+            </StyledErrorIconWrapper>
+            Time slot overlaps with another task
+          </StyledConflictError>
         )}
-        <TimePicker
-          label="Start Time"
-          value={dayjs(task.startTime)}
-          onChange={(newValue: any) => {
-            newValue && setTask({ ...task, startTime: newValue });
-            isConflict && setisConflict(false);
-          }}
-        />
-        <TimePicker
-          label="End Time"
-          value={dayjs(task.endTime)}
-          onChange={(newValue: any) => {
-            newValue && setTask({ ...task, endTime: newValue });
-            isConflict && setisConflict(false);
-          }}
-        />
+        <Stack direction="column" spacing={2} marginTop={2}>
+          <TimePicker
+            label="Start Time"
+            value={dayjs(task.startTime)}
+            onChange={(newValue: any) => {
+              newValue && setTask({ ...task, startTime: newValue });
+              isConflict && setisConflict(false);
+            }}
+          />
+          <TimePicker
+            label="End Time"
+            value={dayjs(task.endTime)}
+            onChange={(newValue: any) => {
+              newValue && setTask({ ...task, endTime: newValue });
+              isConflict && setisConflict(false);
+            }}
+          />
+        </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>Cancel</Button>
-        <Button
-          onClick={handleSave}
-          variant="contained"
-          disabled={isConflict}
-        >
+        <Button onClick={onDialogClose}>Cancel</Button>
+        <Button onClick={handleSave} variant="contained" disabled={isConflict}>
           {isEdit ? "Update" : "Add"}
         </Button>
       </DialogActions>

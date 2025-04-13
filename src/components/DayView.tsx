@@ -25,6 +25,12 @@ interface Props {
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i); // 0 - 23
 
+/**
+ * Calculate the number of minutes from midnight for the given date.
+ *
+ * @param {Date} date
+ * @return {number} minutes from midnight
+ */
 const getMinutesFromMidnight = (date: Date) =>
   date.getHours() * 60 + date.getMinutes();
 
@@ -33,7 +39,6 @@ const DayView: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
 
   return (
     <StyledDayViewContainer>
-      {/* Time grid */}
       {HOURS.map((hour) => (
         <StyledTimeLabel key={hour} hour={hour}>
           {new Date(0, 0, 0, hour).toLocaleTimeString([], {
@@ -43,7 +48,6 @@ const DayView: React.FC<Props> = ({ tasks, onEdit, onDelete }) => {
         </StyledTimeLabel>
       ))}
 
-      {/* Task blocks */}
       {tasks.map((task) => {
         const start = getMinutesFromMidnight(new Date(task.startTime));
         const end = getMinutesFromMidnight(new Date(task.endTime));

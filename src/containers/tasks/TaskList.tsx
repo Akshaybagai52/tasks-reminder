@@ -8,6 +8,15 @@ import DayView from "../../components/DayView";
 import { deleteTask } from "../../features/application/TaskSlice";
 import { StyledFilterTextField } from "../../styles/TaskListStyles";
 
+/**
+ * TaskList component.
+ *
+ * This component displays a list of tasks in a day view layout.
+ * It provides a filter by title field and an add task button.
+ * It also displays the tasks in a day view layout, with the ability to edit
+ * and delete tasks.
+ *
+ */
 const TaskList: React.FC = () => {
   const { tasks } = useSelector((state: RootState) => state.tasks);
   const dispatch = useDispatch();

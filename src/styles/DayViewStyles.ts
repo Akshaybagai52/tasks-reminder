@@ -5,6 +5,7 @@ export const StyledDayViewContainer = styled(Box)({
   height: "340px",
   borderLeft: "1px solid #ccc",
   overflowY: "auto",
+  overflowX: "hidden",
 });
 
 export const StyledTimeLabel = styled(Box, {
