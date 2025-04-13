@@ -1,11 +1,12 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { RootState } from "../../app/store";
 import { Task } from "../../types/Task";
-import { Button, TextField, Stack } from "@mui/material";
+import { Button, Stack } from "@mui/material";
 import TaskFormDialog from "./TaskFormDialog";
 import DayView from "../../components/DayView";
 import { deleteTask } from "../../features/application/TaskSlice";
+import { StyledFilterTextField } from "../../styles/TaskListStyles";
 
 const TaskList: React.FC = () => {
   const { tasks } = useSelector((state: RootState) => state.tasks);
@@ -22,12 +23,11 @@ const TaskList: React.FC = () => {
     );
 
   return (
-    <>
-      <Stack direction="row" spacing={2} mb={2}>
-        <TextField
+    <Fragment>
+      <Stack direction="row" spacing={2} mb={2} justifyContent="space-between">
+        <StyledFilterTextField
           label="Filter by Title"
           variant="outlined"
-          fullWidth
           value={filter}
           onChange={(e) => setFilter(e.target.value)}
         />
@@ -56,7 +56,7 @@ const TaskList: React.FC = () => {
         onClose={() => setDialogOpen(false)}
         initialTask={selectedTask}
       />
-    </>
+    </Fragment>
   );
 };
 

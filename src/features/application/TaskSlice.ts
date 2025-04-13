@@ -16,12 +16,10 @@ const saveTasks = (tasks: Task[]) => {
 
 interface TaskState {
   tasks: Task[];
-  isTaskConflict: boolean;
 }
 
 const initialState: TaskState = {
   tasks: loadTasks(),
-  isTaskConflict: false,
 };
 
 const checkConflict = (
@@ -41,8 +39,6 @@ const taskSlice = createSlice({
   reducers: {
     addTask(state, action: PayloadAction<Task>) {
       if (checkConflict(state.tasks, action.payload)) {
-        state.isTaskConflict = true;
-        // alert("Time slot conflict!");
         return;
       }
       state.tasks.push(action.payload);
@@ -51,8 +47,6 @@ const taskSlice = createSlice({
     editTask(state, action: PayloadAction<Task>) {
       const index = state.tasks.findIndex((t) => t.id === action.payload.id);
       if (checkConflict(state.tasks, action.payload, action.payload.id)) {
-        state.isTaskConflict = true;
-        // alert("Time slot conflict!");
         return;
       }
       state.tasks[index] = action.payload;
@@ -62,12 +56,9 @@ const taskSlice = createSlice({
       state.tasks = state.tasks.filter((task) => task.id !== action.payload);
       saveTasks(state.tasks);
     },
-    resetIsConflictTime(state) {
-      state.isTaskConflict = false;
-    },
   },
 });
 
-export const { addTask, editTask, deleteTask, resetIsConflictTime } =
+export const { addTask, editTask, deleteTask } =
   taskSlice.actions;
 export default taskSlice.reducer;

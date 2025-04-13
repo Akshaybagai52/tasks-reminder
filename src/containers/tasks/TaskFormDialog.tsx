@@ -6,6 +6,7 @@ import {
   DialogActions,
   TextField,
   Button,
+  Typography,
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import { Task } from "../../types/Task";
@@ -18,6 +19,7 @@ import {
 } from "../../features/application/TaskSlice";
 import dayjs from "dayjs";
 import { manageTaskSelector } from "../../selectors/TaskSelector";
+import { isConflictTask } from "../../helper/HelperFunctions";
 
 interface Props {
   open: boolean;
@@ -28,7 +30,8 @@ interface Props {
 const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
   const dispatch = useDispatch();
   const isEdit = Boolean(initialTask);
-  const isConflictTask = useSelector(manageTaskSelector);
+  const [isConflict, setisConflict] = useState(false);
+  const { tasks }: { tasks: any } = useSelector(manageTaskSelector);
 
   const [task, setTask] = useState<Task>({
     id: "",
@@ -56,11 +59,19 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
       ...task,
       id: isEdit ? task.id : uuidv4(),
     };
-    isEdit ? dispatch(editTask(newTask)) : dispatch(addTask(newTask));
-    // onClose();
-  };
+    const hasConflict = isConflictTask(
+      tasks,
+      newTask,
+      isEdit ? task.id : undefined
+    );
 
-  useEffect(() => {}, [task]);
+    if (hasConflict) {
+      setisConflict(true);
+      return;
+    }
+    isEdit ? dispatch(editTask(newTask)) : dispatch(addTask(newTask));
+    onClose();
+  };
 
   return (
     <Dialog open={open} onClose={onClose}>
@@ -80,13 +91,15 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
           value={task.description}
           onChange={(e) => setTask({ ...task, description: e.target.value })}
         />
-        {isConflictTask && <p style={{ color: "red" }}>Conflict Task</p>}
+        {isConflict && (
+          <Typography style={{ color: "red" }}>Conflict Task</Typography>
+        )}
         <TimePicker
           label="Start Time"
           value={dayjs(task.startTime)}
           onChange={(newValue: any) => {
             newValue && setTask({ ...task, startTime: newValue });
-            isConflictTask && dispatch(resetIsConflictTime());
+            isConflict && setisConflict(false);
           }}
         />
         <TimePicker
@@ -94,7 +107,7 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
           value={dayjs(task.endTime)}
           onChange={(newValue: any) => {
             newValue && setTask({ ...task, endTime: newValue });
-            isConflictTask && dispatch(resetIsConflictTime());
+            isConflict && setisConflict(false);
           }}
         />
       </DialogContent>
@@ -103,7 +116,7 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
         <Button
           onClick={handleSave}
           variant="contained"
-          disabled={isConflictTask}
+          disabled={isConflict}
         >
           {isEdit ? "Update" : "Add"}
         </Button>
