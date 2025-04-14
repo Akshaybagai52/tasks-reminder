@@ -7,6 +7,7 @@ import {
   TextField,
   Button,
   Stack,
+  useMediaQuery,
 } from "@mui/material";
 import { TimePicker } from "@mui/x-date-pickers";
 import ErrorOutlineIcon from "@mui/icons-material/ErrorOutline";
@@ -50,6 +51,7 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
   const isEdit = Boolean(initialTask);
   const [isConflict, setisConflict] = useState(false);
   const { tasks }: { tasks: any } = useSelector(manageTaskSelector);
+  const isMobile = useMediaQuery('(max-width:767px)');
 
   const [task, setTask] = useState<Task>({
     id: "",
@@ -150,6 +152,7 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
               newValue && setTask({ ...task, startTime: newValue });
               isConflict && setisConflict(false);
             }}
+            timeSteps={{ minutes: isMobile ? 5 : 1 }}
           />
           <TimePicker
             label="End Time"
@@ -158,6 +161,10 @@ const TaskFormDialog: React.FC<Props> = ({ open, onClose, initialTask }) => {
               newValue && setTask({ ...task, endTime: newValue });
               isConflict && setisConflict(false);
             }}
+            slotProps={{
+              textField: { fullWidth: true }, // if needed
+            }}
+            timeSteps={{ minutes: isMobile ? 5 : 1 }}
           />
         </Stack>
       </DialogContent>
